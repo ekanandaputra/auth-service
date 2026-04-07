@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE `users` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -12,7 +12,7 @@ CREATE TABLE `users` (
 
 -- CreateTable
 CREATE TABLE `roles` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
 
@@ -22,7 +22,7 @@ CREATE TABLE `roles` (
 
 -- CreateTable
 CREATE TABLE `permissions` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
 
@@ -32,24 +32,24 @@ CREATE TABLE `permissions` (
 
 -- CreateTable
 CREATE TABLE `user_roles` (
-    `userId` INTEGER NOT NULL,
-    `roleId` INTEGER NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `roleId` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`userId`, `roleId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `role_permissions` (
-    `roleId` INTEGER NOT NULL,
-    `permissionId` INTEGER NOT NULL,
+    `roleId` VARCHAR(191) NOT NULL,
+    `permissionId` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`roleId`, `permissionId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `user_permissions` (
-    `userId` INTEGER NOT NULL,
-    `permissionId` INTEGER NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `permissionId` VARCHAR(191) NOT NULL,
     `isAllowed` BOOLEAN NOT NULL,
     `expiresAt` DATETIME(3) NULL,
 
