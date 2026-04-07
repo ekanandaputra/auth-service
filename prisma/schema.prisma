@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id              String           @id @default(uuid())
+  id              String           @id @default(uuid()) @db.VarChar(36)
   email           String           @unique
   password        String
   createdAt       DateTime         @default(now())
@@ -23,7 +23,7 @@ model User {
 }
 
 model Role {
-  id          String           @id @default(uuid())
+  id          String           @id @default(uuid()) @db.VarChar(36)
   name        String           @unique
   description String?
   users       UserRole[]
@@ -33,7 +33,7 @@ model Role {
 }
 
 model Permission {
-  id          String           @id @default(uuid())
+  id          String           @id @default(uuid()) @db.VarChar(36)
   name        String           @unique // e.g., 'create_user'
   description String?
   roles       RolePermission[]
@@ -43,8 +43,8 @@ model Permission {
 }
 
 model UserRole {
-  userId String
-  roleId String
+  userId String @db.VarChar(36)
+  roleId String @db.VarChar(36)
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
@@ -53,8 +53,8 @@ model UserRole {
 }
 
 model RolePermission {
-  roleId       String
-  permissionId String
+  roleId       String @db.VarChar(36)
+  permissionId String @db.VarChar(36)
   role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
@@ -63,8 +63,8 @@ model RolePermission {
 }
 
 model UserPermission {
-  userId       String
-  permissionId String
+  userId       String @db.VarChar(36)
+  permissionId String @db.VarChar(36)
   isAllowed    Boolean    // true = ALLOW (override), false = DENY (override)
   expiresAt    DateTime?
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
