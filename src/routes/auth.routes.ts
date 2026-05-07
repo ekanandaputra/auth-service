@@ -17,9 +17,19 @@ const router = Router();
  *           schema:
  *             type: object
  *             required:
+ *               - name
+ *               - nip
+ *               - type
  *               - email
  *               - password
  *             properties:
+ *               name:
+ *                 type: string
+ *               nip:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *                 enum: [EMPLOYEE, LECTURER]
  *               email:
  *                 type: string
  *               password:
@@ -45,11 +55,14 @@ router.post('/register', AuthController.register);
  *           schema:
  *             type: object
  *             required:
- *               - email
  *               - password
  *             properties:
  *               email:
  *                 type: string
+ *                 description: Provide either email or nip
+ *               nip:
+ *                 type: string
+ *                 description: Provide either nip or email
  *               password:
  *                 type: string
  *     responses:

@@ -4,6 +4,9 @@ import { AuthService } from '../services/auth.service';
 import { BadRequestError } from '../utils/errors';
 
 const registerSchema = z.object({
+  name: z.string().min(1, { message: 'Name cannot be empty.' }),
+  nip: z.string().min(1, { message: 'NIP cannot be empty.' }),
+  type: z.enum(['EMPLOYEE', 'LECTURER'], { message: 'Type must be either EMPLOYEE or LECTURER.' }),
   email: z.string().email({ message: 'Format email tidak valid. Harap masukkan email yang benar.' }),
   password: z.string().min(1, { message: 'Password tidak boleh kosong.' }),
 });

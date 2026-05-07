@@ -8,6 +8,15 @@ export class PermissionService {
    * 2. If not overridden, check RolePermission
    */
   static async hasPermission(userId: string, permissionName: string): Promise<boolean> {
+    // 0. Check Super Admin Bypass via ENV
+    const superAdminEmails = process.env.SUPER_ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
+    if (superAdminEmails.length > 0) {
+      const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+      if (user && superAdminEmails.includes(user.email.toLowerCase())) {
+        return true; // Super admins bypass all permission checks
+      }
+    }
+
     const cacheKey = `user_perm:${userId}:${permissionName}`;
 
     // 1. Check cache via Redis

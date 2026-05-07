@@ -10,10 +10,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserType {
+  EMPLOYEE
+  LECTURER
+}
+
 model User {
   id              String           @id @default(uuid()) @db.VarChar(36)
   email           String           @unique
+  name            String?
+  nip             String?          @unique
+  type            UserType?
   password        String
+  isActive        Boolean          @default(true)
+  deletedAt       DateTime?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   roles           UserRole[]

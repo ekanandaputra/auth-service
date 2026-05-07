@@ -6,11 +6,20 @@ import { redisClient } from '../config/redis';
 
 export class AuthService {
   static async register(data: any) {
-    const { email, password } = data;
+    const { email, password, name, nip, type } = data;
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email },
+          { nip }
+        ]
+      }
+    });
+
     if (existingUser) {
-      throw new BadRequestError('Email already in use');
+      if (existingUser.email === email) throw new BadRequestError('Email already in use');
+      if (existingUser.nip === nip) throw new BadRequestError('NIP already in use');
     }
 
     const hashedPassword = await hashPassword(password);
@@ -19,18 +28,41 @@ export class AuthService {
       data: {
         email,
         password: hashedPassword,
+        name,
+        nip,
+        type,
       },
     });
 
-    return { id: user.id, email: user.email };
+    return { id: user.id, email: user.email, name: user.name, nip: user.nip, type: user.type };
   }
 
   static async login(data: any) {
-    const { email, password } = data;
+    const { email, nip, password } = data;
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    if (!email && !nip) {
+      throw new BadRequestError('Email or NIP must be provided');
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(email ? [{ email }] : []),
+          ...(nip ? [{ nip }] : [])
+        ]
+      }
+    });
+
     if (!user) {
       throw new UnauthorizedError('Invalid credentials');
+    }
+
+    if (user.deletedAt) {
+      throw new UnauthorizedError('User account has been deleted');
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedError('User account is inactive');
     }
 
     const isValid = await verifyPassword(password, user.password);
@@ -45,7 +77,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, name: user.name, nip: user.nip, type: user.type },
     };
   }
 
@@ -64,6 +96,14 @@ export class AuthService {
       const user = await prisma.user.findUnique({ where: { id: payload.userId } });
       if (!user) {
         throw new UnauthorizedError('User not found');
+      }
+
+      if (user.deletedAt) {
+        throw new UnauthorizedError('User account has been deleted');
+      }
+
+      if (!user.isActive) {
+        throw new UnauthorizedError('User account is inactive');
       }
 
       const newPayload = { userId: user.id };
