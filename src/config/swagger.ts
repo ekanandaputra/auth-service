@@ -23,7 +23,7 @@ const options = {
           type: 'object',
           properties: {
             id: { type: 'string', format: 'uuid' },
-            email: { type: 'string', format: 'email' },
+            email: { type: 'string', format: 'email', nullable: true },
             name: { type: 'string', nullable: true },
             nip: { type: 'string', nullable: true },
             type: { type: 'string', enum: ['EMPLOYEE', 'LECTURER'], nullable: true },

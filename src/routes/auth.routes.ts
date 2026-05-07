@@ -18,9 +18,7 @@ const router = Router();
  *             type: object
  *             required:
  *               - name
- *               - nip
  *               - type
- *               - email
  *               - password
  *             properties:
  *               name:

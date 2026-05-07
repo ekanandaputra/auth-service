@@ -8,18 +8,23 @@ export class AuthService {
   static async register(data: any) {
     const { email, password, name, nip, type } = data;
 
+    if (!email && !nip) {
+      throw new BadRequestError('Either email or NIP must be provided');
+    }
+
+    const orConditions: any[] = [];
+    if (email) orConditions.push({ email });
+    if (nip) orConditions.push({ nip });
+
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [
-          { email },
-          { nip }
-        ]
+        OR: orConditions
       }
     });
 
     if (existingUser) {
-      if (existingUser.email === email) throw new BadRequestError('Email already in use');
-      if (existingUser.nip === nip) throw new BadRequestError('NIP already in use');
+      if (email && existingUser.email === email) throw new BadRequestError('Email already in use');
+      if (nip && existingUser.nip === nip) throw new BadRequestError('NIP already in use');
     }
 
     const hashedPassword = await hashPassword(password);

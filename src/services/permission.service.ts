@@ -12,7 +12,7 @@ export class PermissionService {
     const superAdminEmails = process.env.SUPER_ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
     if (superAdminEmails.length > 0) {
       const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
-      if (user && superAdminEmails.includes(user.email.toLowerCase())) {
+      if (user && user.email && superAdminEmails.includes(user.email.toLowerCase())) {
         return true; // Super admins bypass all permission checks
       }
     }

@@ -70,21 +70,27 @@ export class UserService {
       try {
         const email = row.email || row.Email;
         const name = row.name || row.Name || row.nama || row.Nama;
-        const nip = row.nip || row.NIP;
+        let nip = row.nip || row.NIP;
         let typeRaw = row.type || row.Type || row.jenis || row.Jenis;
 
-        if (!email) {
-          errors.push({ row: rowNumber, error: 'Email is required' });
+        // Remove backticks or single quotes often used in Excel to format as string
+        if (nip) {
+          nip = String(nip).replace(/['`]/g, '').trim();
+        }
+
+        if (!email && !nip) {
+          errors.push({ row: rowNumber, error: 'Either Email or NIP is required' });
           continue;
         }
+
+        const orConditions: any[] = [];
+        if (email) orConditions.push({ email });
+        if (nip) orConditions.push({ nip: nip.toString() });
 
         // Check duplicate
         const existingUser = await prisma.user.findFirst({
           where: {
-            OR: [
-              { email },
-              ...(nip ? [{ nip: nip.toString() }] : [])
-            ]
+            OR: orConditions
           }
         });
 
@@ -107,7 +113,7 @@ export class UserService {
 
         await prisma.user.create({
           data: {
-            email,
+            email: email ? String(email) : undefined,
             name: name ? String(name) : undefined,
             nip: nip ? String(nip) : undefined,
             type: userType,
