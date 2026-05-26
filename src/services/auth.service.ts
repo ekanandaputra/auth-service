@@ -80,7 +80,7 @@ export class AuthService {
     const refreshToken = signRefreshToken(payload);
 
     return {
-      accessToken,
+      "token": accessToken,
       refreshToken,
       user: { id: user.id, email: user.email, name: user.name, nip: user.nip, type: user.type },
     };
@@ -97,7 +97,7 @@ export class AuthService {
   static async refreshToken(oldRefreshToken: string) {
     try {
       const payload = verifyRefreshToken(oldRefreshToken);
-      
+
       const user = await prisma.user.findUnique({ where: { id: payload.userId } });
       if (!user) {
         throw new UnauthorizedError('User not found');
