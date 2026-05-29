@@ -3,13 +3,24 @@ import { BadRequestError, NotFoundError } from '../utils/errors';
 import * as xlsx from 'xlsx';
 import bcrypt from 'bcrypt';
 import { UserType } from '@prisma/client';
+import { createPaginatedResult, PaginatedResult } from '../utils/pagination';
 
 export class UserService {
-  static async getUsers() {
-    return prisma.user.findMany({
-      where: { deletedAt: null },
-      select: { id: true, email: true, name: true, nip: true, type: true, isActive: true, createdAt: true },
-    });
+  static async getUsers(page: number = 1, limit: number = 10): Promise<PaginatedResult<any>> {
+    const skip = (page - 1) * limit;
+
+    const [total, users] = await Promise.all([
+      prisma.user.count({ where: { deletedAt: null } }),
+      prisma.user.findMany({
+        where: { deletedAt: null },
+        select: { id: true, email: true, name: true, nip: true, type: true, isActive: true, createdAt: true },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' }
+      })
+    ]);
+
+    return createPaginatedResult(users, total, { page, limit });
   }
 
   static async getUserById(userId: string) {

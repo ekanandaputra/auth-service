@@ -1,12 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services/user.service';
+import { parsePaginationParams } from '../utils/pagination';
 import { BadRequestError } from '../utils/errors';
 
 export class UserController {
   static async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const users = await UserService.getUsers();
-      res.status(200).json({ success: true, data: users });
+      const { page, limit } = parsePaginationParams(req);
+
+      const usersResult = await UserService.getUsers(page, limit);
+      res.status(200).json({
+        success: true,
+        data: usersResult.data,
+        pagination: usersResult.pagination
+      });
     } catch (err) {
       next(err);
     }

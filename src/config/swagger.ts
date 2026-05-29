@@ -33,6 +33,15 @@ const options = {
             updatedAt: { type: 'string', format: 'date-time' },
           },
         },
+        Pagination: {
+          type: 'object',
+          properties: {
+            total: { type: 'integer', example: 50 },
+            page: { type: 'integer', example: 1 },
+            limit: { type: 'integer', example: 10 },
+            totalPages: { type: 'integer', example: 5 },
+          },
+        },
       },
     },
     security: [

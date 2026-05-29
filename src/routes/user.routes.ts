@@ -58,13 +58,26 @@ router.post('/import', requirePermission('create_users'), uploadExcel.single('fi
  * @swagger
  * /api/users:
  *   get:
- *     summary: Get all users
+ *     summary: Get all users with pagination
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number (starts from 1)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of records per page
  *     responses:
  *       200:
- *         description: List of users
+ *         description: List of users with pagination details
  *         content:
  *           application/json:
  *             schema:
@@ -76,6 +89,8 @@ router.post('/import', requirePermission('create_users'), uploadExcel.single('fi
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/User'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
  */
 router.get('/', requirePermission('view_users'), UserController.getAll);
 
