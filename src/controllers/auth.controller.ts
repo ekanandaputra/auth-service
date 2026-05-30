@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { AuthService } from '../services/auth.service';
-import { BadRequestError } from '../utils/errors';
+import { BadRequestError, UnauthorizedError } from '../utils/errors';
 
 const registerSchema = z.object({
   name: z.string().min(1, { message: 'Name cannot be empty.' }),
@@ -9,6 +9,11 @@ const registerSchema = z.object({
   type: z.enum(['EMPLOYEE', 'LECTURER'], { message: 'Type must be either EMPLOYEE or LECTURER.' }),
   email: z.string().email({ message: 'Format email tidak valid. Harap masukkan email yang benar.' }),
   password: z.string().min(1, { message: 'Password tidak boleh kosong.' }),
+});
+
+const changePasswordSchema = z.object({
+  oldPassword: z.string().min(1, { message: 'Password lama tidak boleh kosong.' }),
+  newPassword: z.string().min(1, { message: 'Password baru tidak boleh kosong.' }),
 });
 
 export class AuthController {
@@ -66,5 +71,23 @@ export class AuthController {
         userId: req.userId,
       },
     });
+  }
+
+  static async changePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const parsed = changePasswordSchema.safeParse(req.body);
+      if (!parsed.success) {
+        throw new BadRequestError(parsed.error.issues[0].message);
+      }
+
+      if (!req.userId) {
+        throw new UnauthorizedError('User not authenticated');
+      }
+
+      await AuthService.changePassword(req.userId, parsed.data.oldPassword, parsed.data.newPassword);
+      res.status(200).json({ success: true, message: 'Password changed successfully' });
+    } catch (err) {
+      next(err);
+    }
   }
 }

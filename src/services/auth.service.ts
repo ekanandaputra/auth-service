@@ -128,4 +128,25 @@ export class AuthService {
     // Decoding is handled via middleware
     return true; // If reaches here via route, it's valid
   }
+
+  static async changePassword(userId: string, oldPassword: string, newPassword: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.deletedAt) {
+      throw new NotFoundError('User not found');
+    }
+
+    const isValid = await verifyPassword(oldPassword, user.password);
+    if (!isValid) {
+      throw new BadRequestError('Password lama tidak sesuai');
+    }
+
+    const hashedNewPassword = await hashPassword(newPassword);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedNewPassword },
+    });
+
+    return true;
+  }
 }
