@@ -36,4 +36,19 @@ export class RoleController {
       next(err);
     }
   }
+
+  static async getUsersByRoleId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const roleId = req.params.id as string;
+      const { page, limit, skip } = parsePaginationParams(req);
+      const search = (req.query.search as string) || undefined;
+
+      const { total, users } = await RoleService.getUsersByRoleId(roleId, skip, limit, search);
+      
+      const result = createPaginatedResult(users, total, { page, limit });
+      res.status(200).json({ success: true, ...result });
+    } catch (err) {
+      next(err);
+    }
+  }
 }

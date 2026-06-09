@@ -99,6 +99,60 @@ router.get('/', requirePermission('manage_roles'), RoleController.getRoles);
 
 /**
  * @swagger
+ * /api/roles/{id}/users:
+ *   get:
+ *     summary: Get all users assigned to a specific role
+ *     tags: [Roles]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Role ID
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search user by name, email, or nip
+ *     responses:
+ *       200:
+ *         description: A list of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       404:
+ *         description: Role not found
+ */
+router.get('/:id/users', requirePermission('manage_roles'), RoleController.getUsersByRoleId);
+
+/**
+ * @swagger
  * /api/roles/assign:
  *   post:
  *     summary: Assign a role to a user

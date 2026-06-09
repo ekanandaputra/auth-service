@@ -48,4 +48,47 @@ export class RoleService {
 
     return { total, roles };
   }
+
+  static async getUsersByRoleId(roleId: string, skip: number, limit: number, search?: string) {
+    const roleExists = await prisma.role.findUnique({ where: { id: roleId } });
+    if (!roleExists) throw new NotFoundError('Role not found');
+
+    const userWhere: any = {
+      deletedAt: null,
+      roles: {
+        some: {
+          roleId
+        }
+      }
+    };
+
+    if (search) {
+      userWhere.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { nip: { contains: search, mode: 'insensitive' } }
+      ];
+    }
+
+    const [total, users] = await prisma.$transaction([
+      prisma.user.count({ where: userWhere }),
+      prisma.user.findMany({
+        where: userWhere,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          nip: true,
+          type: true,
+          isActive: true,
+          createdAt: true
+        },
+        orderBy: { createdAt: 'desc' }
+      })
+    ]);
+
+    return { total, users };
+  }
 }
