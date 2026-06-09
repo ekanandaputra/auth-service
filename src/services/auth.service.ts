@@ -55,6 +55,13 @@ export class AuthService {
           ...(email ? [{ email }] : []),
           ...(nip ? [{ nip }] : [])
         ]
+      },
+      include: {
+        roles: {
+          include: {
+            role: true
+          }
+        }
       }
     });
 
@@ -79,10 +86,19 @@ export class AuthService {
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);
 
+    const userRoles = user.roles.map(ur => ({ id: ur.role.id, name: ur.role.name }));
+
     return {
       "token": accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, name: user.name, nip: user.nip, type: user.type },
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        name: user.name, 
+        nip: user.nip, 
+        type: user.type,
+        roles: userRoles
+      },
     };
   }
 
