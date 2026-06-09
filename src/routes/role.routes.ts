@@ -38,6 +38,67 @@ router.post('/', requirePermission('manage_roles'), RoleController.create);
 
 /**
  * @swagger
+ * /api/roles:
+ *   get:
+ *     summary: Get all roles with pagination and search
+ *     tags: [Roles]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by role name
+ *     responses:
+ *       200:
+ *         description: A list of roles
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ */
+router.get('/', requirePermission('manage_roles'), RoleController.getRoles);
+
+/**
+ * @swagger
  * /api/roles/assign:
  *   post:
  *     summary: Assign a role to a user

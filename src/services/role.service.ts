@@ -25,4 +25,27 @@ export class RoleService {
 
     return assigned;
   }
+
+  static async getRoles(skip: number, limit: number, search?: string) {
+    const whereClause = search
+      ? {
+          name: {
+            contains: search,
+            mode: 'insensitive' as const,
+          },
+        }
+      : {};
+
+    const [total, roles] = await prisma.$transaction([
+      prisma.role.count({ where: whereClause }),
+      prisma.role.findMany({
+        where: whereClause,
+        skip,
+        take: limit,
+        orderBy: { name: 'asc' },
+      }),
+    ]);
+
+    return { total, roles };
+  }
 }
