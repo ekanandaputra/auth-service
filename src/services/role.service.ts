@@ -9,21 +9,45 @@ export class RoleService {
     });
   }
 
-  static async assignRoleToUser(userId: string, roleId: string) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new NotFoundError('User not found');
-
+  static async assignUsersToRole(roleId: string, userIds: string[]) {
     const role = await prisma.role.findUnique({ where: { id: roleId } });
     if (!role) throw new NotFoundError('Role not found');
 
-    const assigned = await prisma.userRole.create({
-      data: { userId, roleId },
+    const currentAssignments = await prisma.userRole.findMany({
+      where: { roleId },
+      select: { userId: true }
     });
+    const currentUserIds = currentAssignments.map(a => a.userId);
+
+    const usersToRemove = currentUserIds.filter(id => !userIds.includes(id));
+    const usersToAdd = userIds.filter(id => !currentUserIds.includes(id));
+
+    if (usersToAdd.length > 0) {
+      const existingUsersCount = await prisma.user.count({
+        where: { id: { in: usersToAdd }, deletedAt: null }
+      });
+      if (existingUsersCount !== usersToAdd.length) {
+        throw new NotFoundError('One or more users not found');
+      }
+    }
+
+    await prisma.$transaction([
+      prisma.userRole.deleteMany({
+        where: {
+          roleId,
+          userId: { in: usersToRemove }
+        }
+      }),
+      prisma.userRole.createMany({
+        data: usersToAdd.map(userId => ({ roleId, userId }))
+      })
+    ]);
 
     // Invalidate permission cache
-    await PermissionService.invalidateUserCache(userId);
+    const affectedUsers = [...usersToRemove, ...usersToAdd];
+    await Promise.all(affectedUsers.map(userId => PermissionService.invalidateUserCache(userId)));
 
-    return assigned;
+    return { added: usersToAdd.length, removed: usersToRemove.length };
   }
 
   static async getRoles(skip: number, limit: number, search?: string) {

@@ -15,8 +15,14 @@ export class RoleController {
 
   static async assign(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, roleId } = req.body;
-      const assigned = await RoleService.assignRoleToUser(userId, roleId);
+      const roleId = req.params.id as string;
+      const { userIds } = req.body;
+      
+      if (!Array.isArray(userIds)) {
+        return res.status(400).json({ success: false, message: 'userIds must be an array of strings' });
+      }
+
+      const assigned = await RoleService.assignUsersToRole(roleId, userIds);
       res.status(200).json({ success: true, data: assigned });
     } catch (err) {
       next(err);

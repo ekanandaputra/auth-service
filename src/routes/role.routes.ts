@@ -153,12 +153,20 @@ router.get('/:id/users', requirePermission('manage_roles'), RoleController.getUs
 
 /**
  * @swagger
- * /api/roles/assign:
+ * /api/roles/{id}/assign:
  *   post:
- *     summary: Assign a role to a user
+ *     summary: Bulk assign or unassign users to a role
  *     tags: [Roles]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Role ID
  *     requestBody:
  *       required: true
  *       content:
@@ -166,17 +174,32 @@ router.get('/:id/users', requirePermission('manage_roles'), RoleController.getUs
  *           schema:
  *             type: object
  *             required:
- *               - userId
- *               - roleId
+ *               - userIds
  *             properties:
- *               userId:
- *                 type: integer
- *               roleId:
- *                 type: integer
+ *               userIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: uuid
+ *                 description: List of user IDs to assign. Users not in this list will be removed from the role.
  *     responses:
  *       200:
- *         description: Role assigned successfully
+ *         description: Role assignment synced successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     added:
+ *                       type: integer
+ *                     removed:
+ *                       type: integer
  */
-router.post('/assign', requirePermission('manage_roles'), RoleController.assign);
+router.post('/:id/assign', requirePermission('manage_roles'), RoleController.assign);
 
 export default router;
