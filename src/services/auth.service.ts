@@ -86,7 +86,7 @@ export class AuthService {
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);
 
-    const userRoles = user.roles.map(ur => ({ id: ur.role.id, name: ur.role.name }));
+    const userRoles = user.roles.map(ur => ({ id: ur.role.id, key: ur.role.key, name: ur.role.name }));
 
     return {
       "token": accessToken,

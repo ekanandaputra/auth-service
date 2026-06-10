@@ -3,9 +3,9 @@ import { NotFoundError } from '../utils/errors';
 import { PermissionService } from './permission.service';
 
 export class RoleService {
-  static async createRole(name: string, description?: string) {
+  static async createRole(key: string, name: string, description?: string) {
     return prisma.role.create({
-      data: { name, description },
+      data: { key, name, description },
     });
   }
 
@@ -53,10 +53,10 @@ export class RoleService {
   static async getRoles(skip: number, limit: number, search?: string) {
     const whereClause = search
       ? {
-          name: {
-            contains: search,
-            mode: 'insensitive' as const,
-          },
+          OR: [
+            { name: { contains: search, mode: 'insensitive' as const } },
+            { key: { contains: search, mode: 'insensitive' as const } },
+          ],
         }
       : {};
 

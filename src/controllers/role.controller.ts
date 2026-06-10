@@ -5,8 +5,8 @@ import { parsePaginationParams, createPaginatedResult } from '../utils/paginatio
 export class RoleController {
   static async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const { name, description } = req.body;
-      const role = await RoleService.createRole(name, description);
+      const { key, name, description } = req.body;
+      const role = await RoleService.createRole(key, name, description);
       res.status(201).json({ success: true, data: role });
     } catch (err) {
       next(err);
