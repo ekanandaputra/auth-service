@@ -33,6 +33,23 @@ const options = {
             updatedAt: { type: 'string', format: 'date-time' },
           },
         },
+        Role: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid', example: 'a1b2c3d4-...' },
+            key: { type: 'string', example: 'admin', description: 'Unique slug used in logic/backend' },
+            name: { type: 'string', example: 'Administrator', description: 'Display label for frontend' },
+            description: { type: 'string', nullable: true, example: 'Full access role' },
+          },
+        },
+        UserRole: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            key: { type: 'string', example: 'admin', description: 'Used for logic/permission checks' },
+            name: { type: 'string', example: 'Administrator', description: 'Display label for frontend' },
+          },
+        },
         Pagination: {
           type: 'object',
           properties: {

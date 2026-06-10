@@ -66,6 +66,39 @@ router.post('/register', AuthController.register);
  *     responses:
  *       200:
  *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: JWT access token
+ *                 refreshToken:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                     email:
+ *                       type: string
+ *                       nullable: true
+ *                     name:
+ *                       type: string
+ *                       nullable: true
+ *                     nip:
+ *                       type: string
+ *                       nullable: true
+ *                     type:
+ *                       type: string
+ *                       enum: [EMPLOYEE, LECTURER]
+ *                       nullable: true
+ *                     roles:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/UserRole'
  *       401:
  *         description: Invalid credentials
  */

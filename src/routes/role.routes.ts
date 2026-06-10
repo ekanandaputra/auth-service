@@ -24,15 +24,35 @@ router.use(authMiddleware);
  *           schema:
  *             type: object
  *             required:
+ *               - key
  *               - name
  *             properties:
+ *               key:
+ *                 type: string
+ *                 description: Unique slug identifier used in backend logic (e.g. 'admin', 'staff')
+ *                 example: admin
  *               name:
  *                 type: string
+ *                 description: Display label shown in frontend
+ *                 example: Administrator
  *               description:
  *                 type: string
+ *                 example: Full access role
  *     responses:
  *       201:
- *         description: Role created
+ *         description: Role created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Role'
+ *       409:
+ *         description: Role key already exists
  */
 router.post('/', requirePermission('manage_roles'), RoleController.create);
 
@@ -61,7 +81,7 @@ router.post('/', requirePermission('manage_roles'), RoleController.create);
  *         name: search
  *         schema:
  *           type: string
- *         description: Search by role name
+ *         description: Search by role name or key
  *     responses:
  *       200:
  *         description: A list of roles
@@ -75,25 +95,9 @@ router.post('/', requirePermission('manage_roles'), RoleController.create);
  *                 data:
  *                   type: array
  *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       name:
- *                         type: string
- *                       description:
- *                         type: string
+ *                     $ref: '#/components/schemas/Role'
  *                 pagination:
- *                   type: object
- *                   properties:
- *                     total:
- *                       type: integer
- *                     page:
- *                       type: integer
- *                     limit:
- *                       type: integer
- *                     totalPages:
- *                       type: integer
+ *                   $ref: '#/components/schemas/Pagination'
  */
 router.get('/', requirePermission('manage_roles'), RoleController.getRoles);
 
