@@ -11,7 +11,7 @@ export class UserService {
 
     const where: any = { deletedAt: null };
     if (search && search.trim() !== '') {
-      where.name = { contains: search.trim(), mode: 'insensitive' };
+      where.name = { contains: search.trim() };
     }
 
     const [total, users] = await Promise.all([
