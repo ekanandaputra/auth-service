@@ -7,8 +7,9 @@ export class UserController {
   static async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const { page, limit } = parsePaginationParams(req);
+      const search = req.query.search as string | undefined;
 
-      const usersResult = await UserService.getUsers(page, limit);
+      const usersResult = await UserService.getUsers(page, limit, search);
       res.status(200).json({
         success: true,
         data: usersResult.data,

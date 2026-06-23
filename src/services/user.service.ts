@@ -6,13 +6,18 @@ import { UserType } from '@prisma/client';
 import { createPaginatedResult, PaginatedResult } from '../utils/pagination';
 
 export class UserService {
-  static async getUsers(page: number = 1, limit: number = 10): Promise<PaginatedResult<any>> {
+  static async getUsers(page: number = 1, limit: number = 10, search?: string): Promise<PaginatedResult<any>> {
     const skip = (page - 1) * limit;
 
+    const where: any = { deletedAt: null };
+    if (search && search.trim() !== '') {
+      where.name = { contains: search.trim(), mode: 'insensitive' };
+    }
+
     const [total, users] = await Promise.all([
-      prisma.user.count({ where: { deletedAt: null } }),
+      prisma.user.count({ where }),
       prisma.user.findMany({
-        where: { deletedAt: null },
+        where,
         select: { id: true, email: true, name: true, nip: true, type: true, isActive: true, createdAt: true },
         skip,
         take: limit,

@@ -76,6 +76,11 @@ router.post('/import', requirePermission('create_users'), uploadExcel.single('fi
  *           type: integer
  *           default: 10
  *         description: Number of records per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search users by name (case-insensitive, partial match)
  *     responses:
  *       200:
  *         description: List of users with pagination details
