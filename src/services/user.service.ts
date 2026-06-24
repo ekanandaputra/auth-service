@@ -21,7 +21,7 @@ export class UserService {
         select: { id: true, email: true, name: true, nip: true, type: true, isActive: true, createdAt: true },
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' }
+        orderBy: { name: 'asc' }
       })
     ]);
 
