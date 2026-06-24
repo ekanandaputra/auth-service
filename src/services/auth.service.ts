@@ -82,11 +82,11 @@ export class AuthService {
       throw new UnauthorizedError('Invalid credentials');
     }
 
-    const payload = { userId: user.id };
+    const userRoles = user.roles.map(ur => ({ id: ur.role.id, key: ur.role.key, name: ur.role.name }));
+
+    const payload = { userId: user.id, roles: userRoles };
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);
-
-    const userRoles = user.roles.map(ur => ({ id: ur.role.id, key: ur.role.key, name: ur.role.name }));
 
     return {
       "token": accessToken,
@@ -114,7 +114,16 @@ export class AuthService {
     try {
       const payload = verifyRefreshToken(oldRefreshToken);
 
-      const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+      const user = await prisma.user.findUnique({ 
+        where: { id: payload.userId },
+        include: {
+          roles: {
+            include: {
+              role: true
+            }
+          }
+        }
+      });
       if (!user) {
         throw new UnauthorizedError('User not found');
       }
@@ -127,7 +136,8 @@ export class AuthService {
         throw new UnauthorizedError('User account is inactive');
       }
 
-      const newPayload = { userId: user.id };
+      const userRoles = user.roles.map(ur => ({ id: ur.role.id, key: ur.role.key, name: ur.role.name }));
+      const newPayload = { userId: user.id, roles: userRoles };
       const newAccessToken = signAccessToken(newPayload);
       const newRefreshToken = signRefreshToken(newPayload);
 

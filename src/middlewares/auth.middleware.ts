@@ -11,6 +11,7 @@ declare global {
   namespace Express {
     interface Request {
       userId?: string;
+      roles?: { id: string; key: string; name: string }[];
     }
   }
 }
@@ -54,6 +55,9 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 
     const payload = verifyAccessToken(token);
     req.userId = payload.userId;
+    if (payload.roles) {
+      req.roles = payload.roles;
+    }
 
     next();
   } catch (error) {
