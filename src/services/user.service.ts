@@ -38,7 +38,7 @@ export class UserService {
     });
 
     if (!user || user.deletedAt) throw new NotFoundError('User not found');
-    
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
@@ -68,7 +68,7 @@ export class UserService {
     const workbook = xlsx.read(buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
-    
+
     // Parse to JSON
     const rows = xlsx.utils.sheet_to_json<any>(sheet);
     if (rows.length === 0) {
