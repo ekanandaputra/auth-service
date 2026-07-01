@@ -32,6 +32,16 @@ router.use(authMiddleware);
  *     responses:
  *       201:
  *         description: Unit created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Unit'
  */
 router.post('/', UnitController.create);
 
@@ -48,11 +58,13 @@ router.post('/', UnitController.create);
  *         name: page
  *         schema:
  *           type: integer
+ *           default: 1
  *         description: Page number
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
+ *           default: 10
  *         description: Items per page
  *       - in: query
  *         name: search
@@ -62,6 +74,19 @@ router.post('/', UnitController.create);
  *     responses:
  *       200:
  *         description: List of units
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Unit'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
  */
 router.get('/', UnitController.getUnits);
 
@@ -83,6 +108,15 @@ router.get('/', UnitController.getUnits);
  *     responses:
  *       200:
  *         description: Unit details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Unit'
  */
 router.get('/:id', UnitController.getUnitById);
 
@@ -115,6 +149,15 @@ router.get('/:id', UnitController.getUnitById);
  *     responses:
  *       200:
  *         description: Unit updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Unit'
  */
 router.put('/:id', UnitController.update);
 
@@ -136,6 +179,15 @@ router.put('/:id', UnitController.update);
  *     responses:
  *       200:
  *         description: Unit deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
  */
 router.delete('/:id', UnitController.delete);
 
@@ -175,6 +227,19 @@ router.delete('/:id', UnitController.delete);
  *     responses:
  *       200:
  *         description: A list of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
  */
 router.get('/:id/users', UnitController.getUsersByUnitId);
 
@@ -212,6 +277,20 @@ router.get('/:id/users', UnitController.getUsersByUnitId);
  *     responses:
  *       200:
  *         description: Unit assignment synced successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     added:
+ *                       type: integer
+ *                     removed:
+ *                       type: integer
  */
 router.post('/:id/assign', UnitController.assign);
 
