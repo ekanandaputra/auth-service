@@ -28,6 +28,7 @@ model User {
   updatedAt       DateTime         @updatedAt
   roles           UserRole[]
   permissions     UserPermission[]
+  units           UserUnit[]
 
   @@map("users")
 }
@@ -83,4 +84,25 @@ model UserPermission {
 
   @@id([userId, permissionId])
   @@map("user_permissions")
+}
+
+model Unit {
+  id          String    @id @default(uuid()) @db.VarChar(36)
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  users       UserUnit[]
+
+  @@map("units")
+}
+
+model UserUnit {
+  userId String @db.VarChar(36)
+  unitId String @db.VarChar(36)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unit   Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@id([userId, unitId])
+  @@map("user_units")
 }
