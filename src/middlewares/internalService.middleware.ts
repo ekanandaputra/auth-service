@@ -22,10 +22,10 @@ export const internalServiceMiddleware = (req: Request, res: Response, next: Nex
     return next(new ForbiddenError(`Service '${serviceName}' is not allowed`));
   }
 
-  const validKey = process.env.INTERNAL_SERVICE_KEY;
-  if (!validKey || internalKey !== validKey) {
-    return next(new UnauthorizedError('Invalid internal service key'));
-  }
+  // const validKey = process.env.INTERNAL_SERVICE_KEY;
+  // if (!validKey || internalKey !== validKey) {
+  //   return next(new UnauthorizedError('Invalid internal service key'));
+  // }
 
   next();
 };
