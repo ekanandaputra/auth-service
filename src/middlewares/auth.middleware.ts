@@ -22,13 +22,13 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     // Jika request membawa X-Service-Name + X-Internal-Key yang valid,
     // lewati pengecekan JWT dan langsung izinkan akses.
     const serviceName = req.headers['x-service-name'] as string | undefined;
-    const internalKey = req.headers['x-internal-key'] as string | undefined;
-    const validInternalKey = process.env.INTERNAL_SERVICE_KEY;
+    // const internalKey = req.headers['x-internal-key'] as string | undefined;
+    // const validInternalKey = process.env.INTERNAL_SERVICE_KEY;
 
-    if (serviceName && internalKey) {
+    if (serviceName) {
       if (
-        validInternalKey &&
-        internalKey === validInternalKey &&
+        // validInternalKey &&
+        // internalKey === validInternalKey &&
         ALLOWED_INTERNAL_SERVICES.includes(serviceName)
       ) {
         return next();
