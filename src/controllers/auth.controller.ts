@@ -69,6 +69,7 @@ export class AuthController {
       success: true,
       data: {
         userId: req.userId,
+        roles: req.roles,
       },
     });
   }
