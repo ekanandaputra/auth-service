@@ -97,9 +97,15 @@ model Unit {
   @@map("units")
 }
 
+enum UnitMemberType {
+  PIC
+  MEMBER
+}
+
 model UserUnit {
   userId String @db.VarChar(36)
   unitId String @db.VarChar(36)
+  type   UnitMemberType @default(MEMBER)
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   unit   Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 

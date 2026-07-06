@@ -56,41 +56,35 @@ export class UnitService {
     });
   }
 
-  static async assignUsersToUnit(unitId: string, userIds: string[]) {
+  static async assignUsersToUnit(unitId: string, users: { userId: string; type?: 'PIC' | 'MEMBER' }[]) {
     const unit = await prisma.unit.findUnique({ where: { id: unitId } });
     if (!unit) throw new NotFoundError('Unit not found');
 
-    const currentAssignments = await prisma.userUnit.findMany({
-      where: { unitId },
-      select: { userId: true }
-    });
-    const currentUserIds = currentAssignments.map(a => a.userId);
+    const incomingUserIds = users.map(u => u.userId);
 
-    const usersToRemove = currentUserIds.filter(id => !userIds.includes(id));
-    const usersToAdd = userIds.filter(id => !currentUserIds.includes(id));
-
-    if (usersToAdd.length > 0) {
+    if (incomingUserIds.length > 0) {
       const existingUsersCount = await prisma.user.count({
-        where: { id: { in: usersToAdd }, deletedAt: null }
+        where: { id: { in: incomingUserIds }, deletedAt: null }
       });
-      if (existingUsersCount !== usersToAdd.length) {
+      if (existingUsersCount !== incomingUserIds.length) {
         throw new NotFoundError('One or more users not found');
       }
     }
 
     await prisma.$transaction([
       prisma.userUnit.deleteMany({
-        where: {
-          unitId,
-          userId: { in: usersToRemove }
-        }
+        where: { unitId }
       }),
       prisma.userUnit.createMany({
-        data: usersToAdd.map(userId => ({ unitId, userId }))
+        data: users.map(u => ({ 
+          unitId, 
+          userId: u.userId, 
+          type: u.type || 'MEMBER' 
+        }))
       })
     ]);
 
-    return { added: usersToAdd.length, removed: usersToRemove.length };
+    return { assignedCount: users.length };
   }
 
   static async getUsersByUnitId(unitId: string, skip: number, limit: number, search?: string) {
@@ -114,7 +108,7 @@ export class UnitService {
       ];
     }
 
-    const [total, users] = await prisma.$transaction([
+    const [total, rawUsers] = await prisma.$transaction([
       prisma.user.count({ where: userWhere }),
       prisma.user.findMany({
         where: userWhere,
@@ -127,11 +121,23 @@ export class UnitService {
           nip: true,
           type: true,
           isActive: true,
-          createdAt: true
+          createdAt: true,
+          units: {
+            where: { unitId },
+            select: { type: true }
+          }
         },
         orderBy: { createdAt: 'desc' }
       })
     ]);
+
+    const users = rawUsers.map(user => {
+      const { units, ...userData } = user;
+      return {
+        ...userData,
+        memberType: units[0]?.type || 'MEMBER'
+      };
+    });
 
     return { total, users };
   }

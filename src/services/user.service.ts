@@ -33,7 +33,8 @@ export class UserService {
       where: { id: userId },
       include: {
         roles: { include: { role: true } },
-        permissions: { include: { permission: true } }
+        permissions: { include: { permission: true } },
+        units: { include: { unit: true } }
       }
     });
 

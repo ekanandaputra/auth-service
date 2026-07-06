@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `user_units` ADD COLUMN `type` ENUM('PIC', 'MEMBER') NOT NULL DEFAULT 'MEMBER';

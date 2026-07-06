@@ -59,6 +59,27 @@ const options = {
             totalPages: { type: 'integer', example: 5 },
           },
         },
+        Unit: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            name: { type: 'string', example: 'IT Department' },
+            description: { type: 'string', nullable: true, example: 'Information Technology' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        UnitUser: {
+          allOf: [
+            { $ref: '#/components/schemas/User' },
+            {
+              type: 'object',
+              properties: {
+                memberType: { type: 'string', enum: ['PIC', 'MEMBER'], example: 'PIC' },
+              },
+            },
+          ],
+        },
       },
     },
     security: [

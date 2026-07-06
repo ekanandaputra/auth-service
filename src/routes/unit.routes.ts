@@ -237,7 +237,7 @@ router.delete('/:id', UnitController.delete);
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/User'
+ *                     $ref: '#/components/schemas/UnitUser'
  *                 pagination:
  *                   $ref: '#/components/schemas/Pagination'
  */
@@ -266,14 +266,19 @@ router.get('/:id/users', UnitController.getUsersByUnitId);
  *           schema:
  *             type: object
  *             required:
- *               - userIds
+ *               - users
  *             properties:
- *               userIds:
+ *               users:
  *                 type: array
  *                 items:
- *                   type: string
- *                   format: uuid
- *                 description: List of user IDs to assign. Users not in this list will be removed from the unit.
+ *                   type: object
+ *                   properties:
+ *                     userId:
+ *                       type: string
+ *                     type:
+ *                       type: string
+ *                       enum: [PIC, MEMBER]
+ *                 description: List of user objects (userId and type) to assign. Any existing assignments not in this list will be removed.
  *     responses:
  *       200:
  *         description: Unit assignment synced successfully
@@ -287,9 +292,7 @@ router.get('/:id/users', UnitController.getUsersByUnitId);
  *                 data:
  *                   type: object
  *                   properties:
- *                     added:
- *                       type: integer
- *                     removed:
+ *                     assignedCount:
  *                       type: integer
  */
 router.post('/:id/assign', UnitController.assign);

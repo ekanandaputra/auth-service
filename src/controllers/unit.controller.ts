@@ -61,13 +61,13 @@ export class UnitController {
   static async assign(req: Request, res: Response, next: NextFunction) {
     try {
       const unitId = req.params.id as string;
-      const { userIds } = req.body;
+      const { users } = req.body;
       
-      if (!Array.isArray(userIds)) {
-        return res.status(400).json({ success: false, message: 'userIds must be an array of strings' });
+      if (!Array.isArray(users)) {
+        return res.status(400).json({ success: false, message: 'users must be an array of objects containing userId' });
       }
 
-      const assigned = await UnitService.assignUsersToUnit(unitId, userIds);
+      const assigned = await UnitService.assignUsersToUnit(unitId, users);
       res.status(200).json({ success: true, data: assigned });
     } catch (err) {
       next(err);
