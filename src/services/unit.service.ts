@@ -1,5 +1,6 @@
 import { prisma } from '../repositories/prisma';
-import { NotFoundError } from '../utils/errors';
+import { NotFoundError, BadRequestError } from '../utils/errors';
+import * as xlsx from 'xlsx';
 
 export class UnitService {
   static async createUnit(name: string, description?: string) {
@@ -140,5 +141,75 @@ export class UnitService {
     });
 
     return { total, users };
+  }
+
+  static async importUnitsFromBuffer(buffer: Buffer) {
+    const workbook = xlsx.read(buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+
+    const rows = xlsx.utils.sheet_to_json<any>(sheet);
+    if (rows.length === 0) {
+      throw new BadRequestError('Excel file is empty');
+    }
+
+    let successCount = 0;
+    let skipCount = 0;
+    let errors: { row: number, error: string }[] = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const rowNumber = i + 2;
+
+      try {
+        const name = row.name || row.Name || row.nama || row.Nama;
+        const description = row.description || row.Description || row.deskripsi || row.Deskripsi;
+
+        if (!name) {
+          errors.push({ row: rowNumber, error: 'Name is required' });
+          continue;
+        }
+
+        const existingUnit = await prisma.unit.findUnique({
+          where: { name: String(name).trim() }
+        });
+
+        if (existingUnit) {
+          skipCount++;
+          continue;
+        }
+
+        await prisma.unit.create({
+          data: {
+            name: String(name).trim(),
+            description: description ? String(description).trim() : null
+          }
+        });
+
+        successCount++;
+      } catch (err: any) {
+        errors.push({ row: rowNumber, error: err.message || 'Unknown error' });
+      }
+    }
+
+    return { successCount, skipCount, errors };
+  }
+
+  static async exportUnitsToExcel() {
+    const units = await prisma.unit.findMany({
+      orderBy: { name: 'asc' },
+      select: { name: true, description: true }
+    });
+
+    const exportData = units.map(unit => ({
+      Name: unit.name,
+      Description: unit.description || ''
+    }));
+
+    const worksheet = xlsx.utils.json_to_sheet(exportData);
+    const workbook = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(workbook, worksheet, 'Units');
+
+    return xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
   }
 }

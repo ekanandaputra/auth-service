@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { UnitService } from '../services/unit.service';
 import { parsePaginationParams, createPaginatedResult } from '../utils/pagination';
+import { BadRequestError } from '../utils/errors';
 
 export class UnitController {
   static async create(req: Request, res: Response, next: NextFunction) {
@@ -84,6 +85,36 @@ export class UnitController {
       
       const result = createPaginatedResult(users, total, { page, limit });
       res.status(200).json({ success: true, ...result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async importUnits(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.file) {
+        throw new BadRequestError('No file uploaded');
+      }
+
+      const result = await UnitService.importUnitsFromBuffer(req.file.buffer);
+      res.status(200).json({
+        success: true,
+        message: 'Import process completed',
+        data: result
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async exportUnits(req: Request, res: Response, next: NextFunction) {
+    try {
+      const buffer = await UnitService.exportUnitsToExcel();
+      
+      res.setHeader('Content-Disposition', 'attachment; filename="units_export.xlsx"');
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      
+      res.status(200).send(buffer);
     } catch (err) {
       next(err);
     }

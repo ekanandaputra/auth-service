@@ -1,10 +1,57 @@
 import { Router } from 'express';
 import { UnitController } from '../controllers/unit.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
+import { uploadExcel } from '../middlewares/upload';
 
 const router = Router();
 
 router.use(authMiddleware);
+
+/**
+ * @swagger
+ * /api/units/export:
+ *   get:
+ *     summary: Export all units to Excel
+ *     tags: [Units]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Excel file containing unit data
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ */
+router.get('/export', UnitController.exportUnits);
+
+/**
+ * @swagger
+ * /api/units/import:
+ *   post:
+ *     summary: Import units from Excel or CSV file
+ *     tags: [Units]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Excel or CSV file containing unit data
+ *     responses:
+ *       200:
+ *         description: Import result details
+ *       400:
+ *         description: Bad request or file is missing
+ */
+router.post('/import', uploadExcel.single('file'), UnitController.importUnits);
 
 /**
  * @swagger
