@@ -20,7 +20,7 @@ export const requirePermission = (requiredPermission: string) => {
       }
 
       const hasPerm = await PermissionService.hasPermission(userId, requiredPermission);
-      
+
       if (!hasPerm) {
         throw new ForbiddenError(`Missing required permission: ${requiredPermission}`);
       }

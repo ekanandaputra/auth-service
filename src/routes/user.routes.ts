@@ -134,6 +134,40 @@ router.get('/:id', requirePermission('view_users'), UserController.getById);
 
 /**
  * @swagger
+ * /api/users/{id}/units:
+ *   get:
+ *     summary: Get user units by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: User units
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       404:
+ *         description: User not found
+ */
+router.get('/:id/units', requirePermission('view_users'), UserController.getUserUnits);
+
+/**
+ * @swagger
  * /api/users/{id}:
  *   delete:
  *     summary: Soft delete a user

@@ -45,6 +45,14 @@ export class UserService {
     return userWithoutPassword;
   }
 
+  static async getUserUnits(userId: string) {
+    const userUnits = await prisma.userUnit.findMany({
+      where: { userId },
+      include: { unit: true }
+    });
+    return userUnits;
+  }
+
   static async softDeleteUser(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user || user.deletedAt) throw new NotFoundError('User not found');
