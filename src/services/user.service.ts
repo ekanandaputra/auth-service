@@ -4,6 +4,7 @@ import * as xlsx from 'xlsx';
 import bcrypt from 'bcrypt';
 import { UserType } from '@prisma/client';
 import { createPaginatedResult, PaginatedResult } from '../utils/pagination';
+import { hashPassword } from '../utils/password';
 
 export class UserService {
   static async getUsers(page: number = 1, limit: number = 10, search?: string): Promise<PaginatedResult<any>> {
@@ -106,6 +107,20 @@ export class UserService {
     });
 
     return updated;
+  }
+
+  static async resetPassword(userId: string, newPassword: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.deletedAt) throw new NotFoundError('User not found');
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return true;
   }
 
   static async importUsersFromBuffer(buffer: Buffer) {

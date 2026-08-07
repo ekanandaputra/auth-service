@@ -107,4 +107,20 @@ export class UserController {
       next(err);
     }
   }
+
+  static async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.params.id as string;
+      const { newPassword } = req.body;
+
+      if (!newPassword || typeof newPassword !== 'string') {
+        throw new BadRequestError('newPassword is required');
+      }
+
+      await UserService.resetPassword(userId, newPassword);
+      res.status(200).json({ success: true, message: 'Password reset successfully' });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
