@@ -169,6 +169,48 @@ router.get('/:id/units', requirePermission('view_users'), UserController.getUser
 /**
  * @swagger
  * /api/users/{id}:
+ *   put:
+ *     summary: Update user data
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               nip:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *                 enum: [EMPLOYEE, LECTURER]
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       400:
+ *         description: Invalid request body or duplicate email/NIP
+ *       404:
+ *         description: User not found
+ */
+router.put('/:id', requirePermission('update_users'), UserController.updateUser);
+
+/**
+ * @swagger
+ * /api/users/{id}:
  *   delete:
  *     summary: Soft delete a user
  *     tags: [Users]

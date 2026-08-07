@@ -95,4 +95,16 @@ export class UserController {
       next(err);
     }
   }
+
+  static async updateUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.params.id as string;
+      const { name, nip, type, email } = req.body;
+
+      const updatedUser = await UserService.updateUser(userId, { name, nip, type, email });
+      res.status(200).json({ success: true, data: updatedUser });
+    } catch (err) {
+      next(err);
+    }
+  }
 }

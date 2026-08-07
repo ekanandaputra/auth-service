@@ -73,6 +73,41 @@ export class UserService {
     });
   }
 
+  static async updateUser(userId: string, data: { name?: string; nip?: string; type?: UserType; email?: string }) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.deletedAt) throw new NotFoundError('User not found');
+
+    // Check email uniqueness if email is being updated
+    if (data.email && data.email !== user.email) {
+      const existingEmail = await prisma.user.findUnique({ where: { email: data.email } });
+      if (existingEmail) throw new BadRequestError('Email already in use');
+    }
+
+    // Check NIP uniqueness if nip is being updated
+    if (data.nip && data.nip !== user.nip) {
+      const existingNip = await prisma.user.findUnique({ where: { nip: data.nip } });
+      if (existingNip) throw new BadRequestError('NIP already in use');
+    }
+
+    // Validate type if provided
+    if (data.type && !['EMPLOYEE', 'LECTURER'].includes(data.type)) {
+      throw new BadRequestError('Type must be EMPLOYEE or LECTURER');
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.nip !== undefined && { nip: data.nip }),
+        ...(data.type !== undefined && { type: data.type }),
+        ...(data.email !== undefined && { email: data.email }),
+      },
+      select: { id: true, email: true, name: true, nip: true, type: true, isActive: true, createdAt: true, updatedAt: true },
+    });
+
+    return updated;
+  }
+
   static async importUsersFromBuffer(buffer: Buffer) {
     const workbook = xlsx.read(buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
