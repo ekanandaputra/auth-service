@@ -7,12 +7,26 @@ import { createPaginatedResult, PaginatedResult } from '../utils/pagination';
 import { hashPassword } from '../utils/password';
 
 export class UserService {
-  static async getUsers(page: number = 1, limit: number = 10, search?: string): Promise<PaginatedResult<any>> {
+  static async getUsers(page: number = 1, limit: number = 10, search?: string, roleKey?: string): Promise<PaginatedResult<any>> {
     const skip = (page - 1) * limit;
 
     const where: any = { deletedAt: null };
     if (search && search.trim() !== '') {
       where.name = { contains: search.trim() };
+    }
+    if (roleKey && roleKey.trim() !== '') {
+      const roleKeys = roleKey.split(',').map(k => k.trim()).filter(k => k !== '');
+      if (roleKeys.length > 0) {
+        where.roles = {
+          some: {
+            role: {
+              key: {
+                in: roleKeys
+              }
+            }
+          }
+        };
+      }
     }
 
     const [total, users] = await Promise.all([

@@ -81,6 +81,11 @@ router.post('/import', requirePermission('create_users'), uploadExcel.single('fi
  *         schema:
  *           type: string
  *         description: Search users by name (case-insensitive, partial match)
+ *       - in: query
+ *         name: roleKey
+ *         schema:
+ *           type: string
+ *         description: Filter users by role keys (comma-separated, e.g., admin,staff)
  *     responses:
  *       200:
  *         description: List of users with pagination details

@@ -8,8 +8,9 @@ export class UserController {
     try {
       const { page, limit } = parsePaginationParams(req);
       const search = req.query.search as string | undefined;
+      const roleKey = req.query.roleKey as string | undefined;
 
-      const usersResult = await UserService.getUsers(page, limit, search);
+      const usersResult = await UserService.getUsers(page, limit, search, roleKey);
       res.status(200).json({
         success: true,
         data: usersResult.data,
