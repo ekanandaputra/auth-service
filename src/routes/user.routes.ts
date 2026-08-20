@@ -57,6 +57,64 @@ router.post('/import', requirePermission('create_users'), uploadExcel.single('fi
 
 /**
  * @swagger
+ * /api/users/import-units:
+ *   post:
+ *     summary: Import user units relation from Excel file
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Excel file containing NIP and UNIT columns
+ *     responses:
+ *       200:
+ *         description: Import user units result details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Import user units process completed
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     successCount:
+ *                       type: integer
+ *                       example: 10
+ *                     skipCount:
+ *                       type: integer
+ *                       example: 2
+ *                     errors:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           row:
+ *                             type: integer
+ *                             example: 3
+ *                           error:
+ *                             type: string
+ *                             example: NIP and UNIT are required
+ *       400:
+ *         description: Bad request or file is missing
+ */
+router.post('/import-units', requirePermission('create_users'), uploadExcel.single('file'), UserController.importUserUnits);
+
+/**
+ * @swagger
  * /api/users:
  *   get:
  *     summary: Get all users with pagination

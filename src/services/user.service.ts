@@ -219,6 +219,103 @@ export class UserService {
     return { successCount, skipCount, errors };
   }
 
+  static async importUserUnitsFromBuffer(buffer: Buffer) {
+    const workbook = xlsx.read(buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+
+    // Parse to JSON
+    const rows = xlsx.utils.sheet_to_json<any>(sheet);
+    if (rows.length === 0) {
+      throw new BadRequestError('Excel file is empty');
+    }
+
+    let successCount = 0;
+    let skipCount = 0;
+    let errors: { row: number, error: string }[] = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const rowNumber = i + 2; // +1 for 0-index, +1 for header
+
+      try {
+        let nip = row.nip || row.NIP;
+        let unitName = row.unit || row.Unit || row.UNIT;
+
+        if (nip) {
+          nip = String(nip).replace(/['`]/g, '').trim();
+        }
+
+        if (unitName) {
+          unitName = String(unitName).trim();
+        }
+
+        if (!nip || !unitName) {
+          errors.push({ row: rowNumber, error: 'Both NIP and UNIT are required' });
+          continue;
+        }
+
+        // 1. Find or Create Unit
+        let unit = await prisma.unit.findUnique({
+          where: { name: unitName }
+        });
+
+        if (!unit) {
+          unit = await prisma.unit.create({
+            data: { name: unitName }
+          });
+        }
+
+        // 2. Find or Create User
+        let user = await prisma.user.findUnique({
+          where: { nip: nip }
+        });
+
+        if (!user) {
+          const plainPassword = nip;
+          const hashedPassword = await bcrypt.hash(plainPassword, 10);
+          
+          user = await prisma.user.create({
+            data: {
+              nip: nip,
+              name: nip, // Default name to NIP as well since it's required to have some identifier or left blank. Let's use NIP.
+              password: hashedPassword,
+            }
+          });
+        }
+
+        // 3. Create UserUnit Relation
+        const existingUserUnit = await prisma.userUnit.findUnique({
+          where: {
+            userId_unitId: {
+              userId: user.id,
+              unitId: unit.id
+            }
+          }
+        });
+
+        if (existingUserUnit) {
+          skipCount++;
+          continue;
+        }
+
+        await prisma.userUnit.create({
+          data: {
+            userId: user.id,
+            unitId: unit.id,
+            type: 'MEMBER'
+          }
+        });
+
+        successCount++;
+      } catch (err: any) {
+        errors.push({ row: rowNumber, error: err.message || 'Unknown error' });
+      }
+    }
+
+    return { successCount, skipCount, errors };
+  }
+
   static async exportUsersToExcel() {
     const users = await prisma.user.findMany({
       where: { deletedAt: null },

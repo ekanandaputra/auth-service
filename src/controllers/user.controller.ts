@@ -58,6 +58,23 @@ export class UserController {
     }
   }
 
+  static async importUserUnits(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.file) {
+        throw new BadRequestError('No file uploaded');
+      }
+
+      const result = await UserService.importUserUnitsFromBuffer(req.file.buffer);
+      res.status(200).json({
+        success: true,
+        message: 'Import user units process completed',
+        data: result
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.params.id as string;
