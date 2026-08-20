@@ -88,6 +88,18 @@ export class UnitService {
     return { assignedCount: users.length };
   }
 
+  static async updateUserUnitType(unitId: string, userId: string, type: 'PIC' | 'MEMBER') {
+    const userUnit = await prisma.userUnit.findUnique({
+      where: { userId_unitId: { userId, unitId } }
+    });
+    if (!userUnit) throw new NotFoundError('User is not assigned to this unit');
+
+    return prisma.userUnit.update({
+      where: { userId_unitId: { userId, unitId } },
+      data: { type }
+    });
+  }
+
   static async getUsersByUnitId(unitId: string, skip: number, limit: number, search?: string) {
     const unitExists = await prisma.unit.findUnique({ where: { id: unitId } });
     if (!unitExists) throw new NotFoundError('Unit not found');

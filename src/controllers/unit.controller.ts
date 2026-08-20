@@ -75,6 +75,23 @@ export class UnitController {
     }
   }
 
+  static async updateUserType(req: Request, res: Response, next: NextFunction) {
+    try {
+      const unitId = req.params.id as string;
+      const userId = req.params.userId as string;
+      const { type } = req.body;
+
+      if (!type || !['PIC', 'MEMBER'].includes(type)) {
+        throw new BadRequestError('Type must be PIC or MEMBER');
+      }
+
+      const updated = await UnitService.updateUserUnitType(unitId, userId, type);
+      res.status(200).json({ success: true, message: 'User member type updated successfully', data: updated });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async getUsersByUnitId(req: Request, res: Response, next: NextFunction) {
     try {
       const unitId = req.params.id as string;

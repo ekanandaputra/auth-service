@@ -344,4 +344,80 @@ router.get('/:id/users', UnitController.getUsersByUnitId);
  */
 router.post('/:id/assign', UnitController.assign);
 
+/**
+ * @swagger
+ * /api/units/{id}/users/{userId}/type:
+ *   patch:
+ *     summary: Update memberType of a user in a unit
+ *     tags: [Units]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Unit ID
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - type
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 enum: [PIC, MEMBER]
+ *     responses:
+ *       200:
+ *         description: Member type updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: User member type updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     userId:
+ *                       type: string
+ *                     unitId:
+ *                       type: string
+ *                     type:
+ *                       type: string
+ *                       enum: [PIC, MEMBER]
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                     createdBy:
+ *                       type: string
+ *                     updatedBy:
+ *                       type: string
+ *       400:
+ *         description: Invalid type
+ *       404:
+ *         description: User not assigned to unit
+ */
+router.patch('/:id/users/:userId/type', UnitController.updateUserType);
+
 export default router;

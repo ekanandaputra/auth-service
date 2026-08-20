@@ -16,19 +16,19 @@ enum UserType {
 }
 
 model User {
-  id              String           @id @default(uuid()) @db.VarChar(36)
-  email           String?          @unique
-  name            String?
-  nip             String?          @unique
-  type            UserType?
-  password        String
-  isActive        Boolean          @default(true)
-  deletedAt       DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  roles           UserRole[]
-  permissions     UserPermission[]
-  units           UserUnit[]
+  id          String           @id @default(uuid()) @db.VarChar(36)
+  email       String?          @unique
+  name        String?
+  nip         String?          @unique
+  type        UserType?
+  password    String
+  isActive    Boolean          @default(true)
+  deletedAt   DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  roles       UserRole[]
+  permissions UserPermission[]
+  units       UserUnit[]
 
   @@map("users")
 }
@@ -36,7 +36,7 @@ model User {
 model Role {
   id          String           @id @default(uuid()) @db.VarChar(36)
   key         String           @unique // e.g., 'admin', 'staff' — used in logic
-  name        String           // display label for frontend
+  name        String // display label for frontend
   description String?
   users       UserRole[]
   permissions RolePermission[]
@@ -57,16 +57,16 @@ model Permission {
 model UserRole {
   userId String @db.VarChar(36)
   roleId String @db.VarChar(36)
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
   @@map("user_roles")
 }
 
 model RolePermission {
-  roleId       String @db.VarChar(36)
-  permissionId String @db.VarChar(36)
+  roleId       String     @db.VarChar(36)
+  permissionId String     @db.VarChar(36)
   role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
@@ -75,9 +75,9 @@ model RolePermission {
 }
 
 model UserPermission {
-  userId       String @db.VarChar(36)
-  permissionId String @db.VarChar(36)
-  isAllowed    Boolean    // true = ALLOW (override), false = DENY (override)
+  userId       String     @db.VarChar(36)
+  permissionId String     @db.VarChar(36)
+  isAllowed    Boolean // true = ALLOW (override), false = DENY (override)
   expiresAt    DateTime?
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
@@ -87,11 +87,11 @@ model UserPermission {
 }
 
 model Unit {
-  id          String    @id @default(uuid()) @db.VarChar(36)
-  name        String    @unique
+  id          String     @id @default(uuid()) @db.VarChar(36)
+  name        String     @unique
   description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   users       UserUnit[]
 
   @@map("units")
@@ -103,11 +103,16 @@ enum UnitMemberType {
 }
 
 model UserUnit {
-  userId String @db.VarChar(36)
-  unitId String @db.VarChar(36)
-  type   UnitMemberType @default(MEMBER)
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  unit   Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  userId    String         @db.VarChar(36)
+  unitId    String         @db.VarChar(36)
+  type      UnitMemberType @default(MEMBER)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  createdBy String?        @db.VarChar(36)
+  updatedBy String?        @db.VarChar(36)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@id([userId, unitId])
   @@map("user_units")
