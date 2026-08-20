@@ -338,11 +338,7 @@ export class UserService {
       include: {
         user: { select: { nip: true, name: true } },
         unit: { select: { name: true } }
-      },
-      orderBy: [
-        { unit: { name: 'asc' } },
-        { user: { nip: 'asc' } }
-      ]
+      }
     });
 
     const exportData = userUnits.map(uu => ({
