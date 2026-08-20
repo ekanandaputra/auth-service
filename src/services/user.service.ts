@@ -336,8 +336,8 @@ export class UserService {
   static async exportUserUnitsToExcel() {
     const userUnits = await prisma.userUnit.findMany({
       include: {
-        user: { select: { nip: true, name: true } },
-        unit: { select: { name: true } }
+        user: true,
+        unit: true
       }
     });
 
