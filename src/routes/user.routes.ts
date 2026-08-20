@@ -73,7 +73,7 @@ router.post('/import', requirePermission('create_users'), uploadExcel.single('fi
  *               file:
  *                 type: string
  *                 format: binary
- *                 description: Excel file containing NIP and UNIT columns
+ *                 description: Excel file containing NAMA, NIP, and UNIT columns
  *     responses:
  *       200:
  *         description: Import user units result details
@@ -107,11 +107,30 @@ router.post('/import', requirePermission('create_users'), uploadExcel.single('fi
  *                             example: 3
  *                           error:
  *                             type: string
- *                             example: NIP and UNIT are required
+ *                             example: Both NIP and UNIT are required
  *       400:
  *         description: Bad request or file is missing
  */
 router.post('/import-units', requirePermission('create_users'), uploadExcel.single('file'), UserController.importUserUnits);
+
+/**
+ * @swagger
+ * /api/users/export-units:
+ *   get:
+ *     summary: Export all user units to Excel
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Excel file containing NAMA, NIP and UNIT data
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ */
+router.get('/export-units', requirePermission('view_users'), UserController.exportUserUnits);
 
 /**
  * @swagger

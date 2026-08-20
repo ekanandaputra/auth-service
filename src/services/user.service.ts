@@ -239,16 +239,13 @@ export class UserService {
       const rowNumber = i + 2; // +1 for 0-index, +1 for header
 
       try {
+        let name = row.nama || row.Nama || row.NAMA || row.name || row.Name;
         let nip = row.nip || row.NIP;
         let unitName = row.unit || row.Unit || row.UNIT;
 
-        if (nip) {
-          nip = String(nip).replace(/['`]/g, '').trim();
-        }
-
-        if (unitName) {
-          unitName = String(unitName).trim();
-        }
+        if (name) name = String(name).trim();
+        if (nip) nip = String(nip).replace(/['`]/g, '').trim();
+        if (unitName) unitName = String(unitName).trim();
 
         if (!nip || !unitName) {
           errors.push({ row: rowNumber, error: 'Both NIP and UNIT are required' });
@@ -278,7 +275,7 @@ export class UserService {
           user = await prisma.user.create({
             data: {
               nip: nip,
-              name: nip, // Default name to NIP as well since it's required to have some identifier or left blank. Let's use NIP.
+              name: name || nip, // Use provided name, fallback to NIP if empty
               password: hashedPassword,
             }
           });
@@ -332,6 +329,31 @@ export class UserService {
     const worksheet = xlsx.utils.json_to_sheet(exportData);
     const workbook = xlsx.utils.book_new();
     xlsx.utils.book_append_sheet(workbook, worksheet, 'Users');
+
+    return xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+  }
+
+  static async exportUserUnitsToExcel() {
+    const userUnits = await prisma.userUnit.findMany({
+      include: {
+        user: { select: { nip: true, name: true } },
+        unit: { select: { name: true } }
+      },
+      orderBy: [
+        { unit: { name: 'asc' } },
+        { user: { nip: 'asc' } }
+      ]
+    });
+
+    const exportData = userUnits.map(uu => ({
+      NAMA: uu.user.name || '',
+      NIP: uu.user.nip || '',
+      UNIT: uu.unit.name || ''
+    }));
+
+    const worksheet = xlsx.utils.json_to_sheet(exportData);
+    const workbook = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(workbook, worksheet, 'User Units');
 
     return xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
   }

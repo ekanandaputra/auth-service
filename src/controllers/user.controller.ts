@@ -114,6 +114,19 @@ export class UserController {
     }
   }
 
+  static async exportUserUnits(req: Request, res: Response, next: NextFunction) {
+    try {
+      const buffer = await UserService.exportUserUnitsToExcel();
+      
+      res.setHeader('Content-Disposition', 'attachment; filename="user_units_export.xlsx"');
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      
+      res.status(200).send(buffer);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.params.id as string;
