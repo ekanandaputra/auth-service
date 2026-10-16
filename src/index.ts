@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import { env } from './config/env';
 import { errorHandler } from './middlewares/errorHandler';
-import { basicRateLimiter } from './middlewares/rateLimiter';
 import apiRoutes from './routes';
 import { setupSwagger } from './config/swagger';
 
@@ -16,9 +15,6 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Rate limiter
-app.use(basicRateLimiter);
 
 // Routes
 app.use('/api', apiRoutes);
