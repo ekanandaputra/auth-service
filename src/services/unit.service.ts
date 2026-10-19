@@ -13,8 +13,10 @@ export class UnitService {
     const whereClause = search
       ? {
           OR: [
-            { name: { contains: search, mode: 'insensitive' as const } },
-            { description: { contains: search, mode: 'insensitive' as const } },
+            // MySQL uses the column collation for case sensitivity and does
+            // not support Prisma's `mode` filter argument.
+            { name: { contains: search } },
+            { description: { contains: search } },
           ],
         }
       : {};
@@ -115,9 +117,9 @@ export class UnitService {
 
     if (search) {
       userWhere.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-        { nip: { contains: search, mode: 'insensitive' } }
+        { name: { contains: search } },
+        { email: { contains: search } },
+        { nip: { contains: search } }
       ];
     }
 
