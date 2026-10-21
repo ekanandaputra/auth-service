@@ -61,6 +61,19 @@ export class UserService {
   }
 
   static async getUserUnits(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        roles: {
+          select: { role: { select: { key: true } } }
+        }
+      }
+    });
+
+    if (user?.roles.some(({ role }) => role.key === 'admin_sim_proker')) {
+      return prisma.unit.findMany({ orderBy: { name: 'asc' } });
+    }
+
     const userUnits = await prisma.userUnit.findMany({
       where: { userId },
       include: { unit: true }
